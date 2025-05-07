@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask SSR Demo</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Flask SSR</h1>
+        <nav>
+            <a href="{{ url_for('users') }}">View Users</a> |
+            <a href="/">Home</a>
+        </nav>
+    </header>
+    <main>
+        <h2>Enter Your Name:</h2>
+        <form action="{{ url_for('submit') }}" method="POST">
+            <input type="text" name="username" placeholder="Enter your name" required>
+            <button type="submit">Submit</button>
+        </form>
+    </main>
+</body>
+</html>

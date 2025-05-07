@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users List</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+    <h1>Users List</h1>
+
+    <!-- User Registration Form -->
+    <h2>Register a New User</h2>
+    <form action="{{ url_for('register') }}" method="POST">
+        <input type="text" name="name" placeholder="Enter Name" required>
+        <input type="email" name="email" placeholder="Enter Email" required>
+        <button type="submit">Register</button>
+    </form>
+
+    <hr>
+
+    <!-- Display Users -->
+    <h2>Registered Users</h2>
+    <ul>
+        {% for user in users %}
+            <li>
+                <strong>{{ user["name"] }}</strong> ({{ user.get("username", "No username") }}) - {{ user["email"] }}
+                <form action="{{ url_for('delete_user', user_id=user['id']) }}" method="POST" class="delete-form">
+                    <button type="submit" class="delete-button">❌ Delete</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <br>
+    <a href="{{ url_for('home') }}" class="back-button">⬅ Back to Home</a>
+
+</body>
+</html>
