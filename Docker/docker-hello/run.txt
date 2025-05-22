@@ -1,0 +1,3 @@
+docker build -t hello-cow .
+
+docker run hello-cow

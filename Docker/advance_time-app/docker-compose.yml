@@ -1,0 +1,47 @@
+version: '3'
+services:
+  api1:
+    build: ./api
+    expose:
+      - "5000"
+    environment:
+      - TZ=UTC
+      - API_INSTANCE=Instance-1
+    networks:
+      - app-network
+
+  api2:
+    build: ./api
+    expose:
+      - "5000"
+    environment:
+      - TZ=UTC
+      - API_INSTANCE=Instance-2
+    networks:
+      - app-network
+
+  api3:
+    build: ./api
+    expose:
+      - "5000"
+    environment:
+      - TZ=UTC
+      - API_INSTANCE=Instance-3
+    networks:
+      - app-network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - api1
+      - api2
+      - api3
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+

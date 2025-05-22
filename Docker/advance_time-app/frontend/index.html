@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Time App with Load Balancing</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .time-display {
+      background-color: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+    }
+    .time-info {
+      margin-bottom: 10px;
+    }
+    select {
+      padding: 5px;
+      margin-right: 10px;
+    }
+    button {
+      padding: 5px 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .instance-label {
+      display: inline-block;
+      padding: 3px 8px;
+      margin-left: 8px;
+      background-color: #007bff;
+      color: white;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+    #request-counter {
+      font-weight: bold;
+    }
+    .chart-container {
+      height: 200px;
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .instance-bar {
+      display: flex;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .instance-name {
+      width: 120px;
+    }
+    .bar {
+      background-color: #4CAF50;
+      height: 20px;
+      transition: width 0.3s ease;
+    }
+    .instance-count {
+      margin-left: 10px;
+      min-width: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Load-Balanced Time Application</h1>
+  
+  <div class="time-display">
+    <div class="time-info">
+      <strong>Server Time:</strong> <span id="server-time">Loading...</span>
+      <span id="instance-label" class="instance-label">Unknown</span>
+    </div>
+    <div class="time-info">
+      <strong>Server Timezone:</strong> <span id="server-timezone">Loading...</span>
+    </div>
+    <div class="time-info">
+      <strong>Browser Local Time:</strong> <span id="local-time">Loading...</span>
+    </div>
+  </div>
+  
+  <div>
+    <h3>View time in a different timezone:</h3>
+    <select id="timezone-select">
+      <option value="">Loading timezones...</option>
+    </select>
+    <button id="update-timezone">Update</button>
+    <div class="time-info" style="margin-top: 10px;">
+      <strong>Selected Timezone Time:</strong> <span id="selected-timezone-time">Select a timezone</span>
+    </div>
+  </div>
+
+  <div style="margin-top: 30px;">
+    <h3>Load Balancing Statistics</h3>
+    <div class="time-info">
+      <strong>Total API Requests:</strong> <span id="request-counter">0</span>
+    </div>
+    <button id="refresh-now">Make API Request Now</button>
+    
+    <div class="chart-container">
+      <h4>Instance Distribution</h4>
+      <div id="instance-stats"></div>
+    </div>
+  </div>
+
+  <script>
+    // Statistics tracking
+    let requestCounter = 0;
+    const instanceCounts = {};
+    
+    // Get and update the local browser time
+    function updateLocalTime() {
+      const now = new Date();
+      document.getElementById('local-time').innerText = now.toLocaleTimeString() + 
+        ' (' + Intl.DateTimeFormat().resolvedOptions().timeZone + ')';
+    }
+    
+    // Initial local time display
+    updateLocalTime();
+    
+    // Update local time every second
+    setInterval(updateLocalTime, 1000);
+    
+    // Fetch time from API
+    function fetchTime(timezone = null) {
+      let url = '/api/time';
+      if (timezone) {
+        url += `?tz=${encodeURIComponent(timezone)}`;
+      }
+      
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          // Update request counter and stats
+          requestCounter++;
+          document.getElementById('request-counter').innerText = requestCounter;
+          
+          // Update instance stats
+          const instance = data.instance || 'Unknown';
+          if (!instanceCounts[instance]) {
+            instanceCounts[instance] = 0;
+          }
+          instanceCounts[instance]++;
+          updateInstanceStats();
+          
+          // Update UI
+          document.getElementById('server-time').innerText = data.time;
+          document.getElementById('server-timezone').innerText = data.timezone;
+          document.getElementById('instance-label').innerText = `Instance: ${instance}`;
+          
+          // Handle timezone select
+          if (data.available_timezones && data.available_timezones.length > 0) {
+            const select = document.getElementById('timezone-select');
+            // Only populate if not already done
+            if (select.options.length <= 1) {
+              select.innerHTML = ''; // Clear loading option
+              
+              // Add all timezones
+              for (const tz of data.available_timezones) {
+                if (tz === "...") {
+                  continue; // Skip the separator
+                }
+                const option = document.createElement('option');
+                option.value = tz;
+                option.textContent = tz;
+                select.appendChild(option);
+              }
+            }
+          }
+          
+          // Update selected timezone time if available
+          if (data.client_time && data.client_timezone) {
+            document.getElementById('selected-timezone-time').innerText = 
+              `${data.client_time} (${data.client_timezone})`;
+          }
+        })
+        .catch(err => {
+          document.getElementById('server-time').innerText = 'Error connecting to API';
+          console.error('Fetch failed:', err);
+        });
+    }
+    
+    function updateInstanceStats() {
+      const statsContainer = document.getElementById('instance-stats');
+      statsContainer.innerHTML = '';
+      
+      // Get the maximum count for scaling
+      const maxCount = Math.max(...Object.values(instanceCounts), 1);
+      
+      // Create a bar for each instance
+      for (const instance in instanceCounts) {
+        const count = instanceCounts[instance];
+        const percentage = (count / maxCount) * 100;
+        
+        const instanceBar = document.createElement('div');
+        instanceBar.className = 'instance-bar';
+        
+        const instanceName = document.createElement('div');
+        instanceName.className = 'instance-name';
+        instanceName.textContent = instance;
+        
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.width = `${percentage}%`;
+        
+        const instanceCount = document.createElement('div');
+        instanceCount.className = 'instance-count';
+        instanceCount.textContent = count;
+        
+        instanceBar.appendChild(instanceName);
+        instanceBar.appendChild(bar);
+        instanceBar.appendChild(instanceCount);
+        
+        statsContainer.appendChild(instanceBar);
+      }
+    }
+    
+    // Initial fetch
+    fetchTime();
+    
+    // Fetch server time every 5 seconds
+    setInterval(() => fetchTime(), 5000);
+    
+    // Setup timezone selector
+    document.getElementById('update-timezone').addEventListener('click', function() {
+      const select = document.getElementById('timezone-select');
+      const selectedTimezone = select.value;
+      if (selectedTimezone) {
+        fetchTime(selectedTimezone);
+      }
+    });
+    
+    // Setup refresh button
+    document.getElementById('refresh-now').addEventListener('click', function() {
+      fetchTime();
+    });
+  </script>
+</body>
+</html>
