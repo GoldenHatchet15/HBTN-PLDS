@@ -1,0 +1,92 @@
+{
+    "swagger": "2.0",
+    "info": {
+      "title": "To-Do List API",
+      "description": "API for managing tasks",
+      "version": "1.0"
+    },
+    "paths": {
+      "/tasks": {
+        "get": {
+          "summary": "Get all tasks",
+          "responses": {
+            "200": { "description": "Success" }
+          }
+        },
+        "post": {
+          "summary": "Create a new task",
+          "parameters": [
+            {
+              "name": "body",
+              "in": "body",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" }
+                }
+              }
+            }
+          ],
+          "responses": {
+            "201": { "description": "Created" }
+          }
+        }
+      },
+      "/tasks/{task_id}": {
+        "get": {
+          "summary": "Get a single task",
+          "parameters": [
+            {
+              "name": "task_id",
+              "in": "path",
+              "required": true,
+              "type": "integer"
+            }
+          ],
+          "responses": {
+            "200": { "description": "Success" }
+          }
+        },
+        "put": {
+          "summary": "Update a task",
+          "parameters": [
+            {
+              "name": "task_id",
+              "in": "path",
+              "required": true,
+              "type": "integer"
+            },
+            {
+              "name": "body",
+              "in": "body",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "completed": { "type": "boolean" }
+                }
+              }
+            }
+          ],
+          "responses": {
+            "200": { "description": "Updated" }
+          }
+        },
+        "delete": {
+          "summary": "Delete a task",
+          "parameters": [
+            {
+              "name": "task_id",
+              "in": "path",
+              "required": true,
+              "type": "integer"
+            }
+          ],
+          "responses": {
+            "200": { "description": "Deleted" }
+          }
+        }
+      }
+    }
+  }
+  
