@@ -1,0 +1,721 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); color: var(--color-text-primary); }
+
+.lecture-header {
+  padding: 2rem 0 1.5rem;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  margin-bottom: 2rem;
+}
+.lecture-header h1 { font-size: 22px; font-weight: 500; margin-bottom: 0.4rem; }
+.lecture-header p { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; }
+
+.toc {
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+}
+.toc h2 { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+.toc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 4px; }
+.toc a { font-size: 13px; color: var(--color-text-secondary); text-decoration: none; padding: 3px 0; display: block; }
+.toc a:hover { color: var(--color-text-primary); }
+.toc-num { color: var(--color-text-tertiary); margin-right: 6px; }
+
+.section { margin-bottom: 3rem; }
+.section-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.section-num {
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+.section-header h2 { font-size: 18px; font-weight: 500; }
+
+.prose { font-size: 15px; line-height: 1.75; color: var(--color-text-primary); margin-bottom: 1rem; }
+.prose + .prose { margin-top: -0.25rem; }
+
+.callout {
+  border-left: 3px solid;
+  padding: 0.85rem 1.1rem;
+  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+  margin: 1.25rem 0;
+  font-size: 14px; line-height: 1.65;
+}
+.callout-concept { border-color: #7F77DD; background: #EEEDFE; color: #3C3489; }
+.callout-warning { border-color: #BA7517; background: #FAEEDA; color: #633806; }
+.callout-tip { border-color: #1D9E75; background: #E1F5EE; color: #085041; }
+@media (prefers-color-scheme: dark) {
+  .callout-concept { border-color: #AFA9EC; background: #26215C; color: #CECBF6; }
+  .callout-warning { border-color: #EF9F27; background: #412402; color: #FAC775; }
+  .callout-tip { border-color: #5DCAA5; background: #04342C; color: #9FE1CB; }
+}
+.callout strong { font-weight: 500; }
+
+.callout-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.07em; opacity: 0.7; margin-bottom: 4px; display: block; }
+
+pre {
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  padding: 1rem 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.65;
+  overflow-x: auto;
+  margin: 1rem 0;
+  color: var(--color-text-primary);
+}
+code { font-family: var(--font-mono); font-size: 13px; background: var(--color-background-secondary); padding: 1px 5px; border-radius: 4px; }
+
+.flow {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  margin: 1rem 0 1.25rem; padding-left: 1rem;
+}
+.flow-step {
+  font-size: 13px; color: var(--color-text-secondary);
+  display: flex; align-items: center; gap: 8px;
+}
+.flow-arrow { color: var(--color-text-tertiary); font-size: 12px; padding-left: 1rem; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1rem 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 1rem 0; }
+@media (max-width: 500px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 1rem 1.1rem;
+}
+.card h4 { font-size: 14px; font-weight: 500; margin-bottom: 0.4rem; }
+.card p, .card ul { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.card ul { padding-left: 1.1rem; }
+.card ul li { margin-bottom: 3px; }
+
+.comparison {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1rem 0;
+}
+.comparison-col h4 { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.error-list { list-style: none; padding: 0; margin: 0.75rem 0; }
+.error-list li {
+  font-size: 14px; line-height: 1.6;
+  padding: 8px 0 8px 1.5rem;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  position: relative;
+}
+.error-list li:last-child { border-bottom: none; }
+.error-list li::before { content: "✕"; position: absolute; left: 0; color: #D85A30; font-size: 12px; top: 9px; }
+
+.q-list { list-style: none; padding: 0; }
+.q-list li {
+  font-size: 14px; padding: 7px 0 7px 1.4rem;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+  color: var(--color-text-secondary); position: relative;
+}
+.q-list li:last-child { border-bottom: none; }
+.q-list li::before { content: "→"; position: absolute; left: 0; color: var(--color-text-tertiary); }
+
+.badge {
+  display: inline-block;
+  font-size: 11px; font-weight: 500; padding: 2px 8px;
+  border-radius: 999px; margin-right: 6px;
+}
+.badge-purple { background: #EEEDFE; color: #3C3489; }
+.badge-teal { background: #E1F5EE; color: #085041; }
+.badge-amber { background: #FAEEDA; color: #633806; }
+@media (prefers-color-scheme: dark) {
+  .badge-purple { background: #26215C; color: #CECBF6; }
+  .badge-teal { background: #04342C; color: #9FE1CB; }
+  .badge-amber { background: #412402; color: #FAC775; }
+}
+
+.arch-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 1rem 0; }
+.arch-table th { text-align: left; font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-tertiary); padding: 6px 12px; border-bottom: 0.5px solid var(--color-border-secondary); }
+.arch-table td { padding: 9px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: top; }
+.arch-table td:first-child { font-family: var(--font-mono); font-size: 12px; color: var(--color-text-secondary); white-space: nowrap; }
+
+.divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 2rem 0; }
+</style>
+
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">NodeJS Basics — Holberton Lecture Guide</h2>
+
+<div class="lecture-header">
+  <h1>NodeJS Basics — Holberton Lecture / PLD</h1>
+  <p>The bridge from browser JavaScript to backend development. This guide walks instructors through every concept, with explanations, analogies, code examples, and common student pitfalls.</p>
+</div>
+
+<div class="toc">
+  <h2>Sections</h2>
+  <div class="toc-grid">
+    <a href="#goals"><span class="toc-num">01</span>Lecture Goals</a>
+    <a href="#what-is-node"><span class="toc-num">02</span>What is NodeJS?</a>
+    <a href="#why-node"><span class="toc-num">03</span>Why NodeJS?</a>
+    <a href="#task0"><span class="toc-num">04</span>First Execution & Modules</a>
+    <a href="#stdin"><span class="toc-num">05</span>process.stdin</a>
+    <a href="#fs-sync"><span class="toc-num">06</span>Reading Files (sync)</a>
+    <a href="#fs-async"><span class="toc-num">07</span>Async File Reading</a>
+    <a href="#http"><span class="toc-num">08</span>HTTP Servers</a>
+    <a href="#http-advanced"><span class="toc-num">09</span>Advanced HTTP Server</a>
+    <a href="#express"><span class="toc-num">10</span>ExpressJS</a>
+    <a href="#express-routing"><span class="toc-num">11</span>Advanced Express Routing</a>
+    <a href="#architecture"><span class="toc-num">12</span>Full Server Architecture</a>
+    <a href="#babel"><span class="toc-num">13</span>ES6 + Babel</a>
+    <a href="#nodemon"><span class="toc-num">14</span>Nodemon</a>
+    <a href="#concepts"><span class="toc-num">15</span>Core Concepts</a>
+    <a href="#errors"><span class="toc-num">16</span>Common Errors</a>
+    <a href="#questions"><span class="toc-num">17</span>Questions to Ask Students</a>
+    <a href="#live"><span class="toc-num">18</span>Live Coding Suggestions</a>
+  </div>
+</div>
+
+<div class="section" id="goals">
+  <div class="section-header"><span class="section-num">01</span><h2>Lecture goals</h2></div>
+  <p class="prose">This project is one of the most important introductions to backend development with JavaScript. Students already know how to write JS in the browser — now they discover what JavaScript can do when it escapes the browser entirely.</p>
+  <div class="callout callout-tip">
+    <span class="callout-label">Big picture</span>
+    The project evolves incrementally: <strong>console → stdin → files → async → HTTP → Express → routes/controllers → organized architecture.</strong> Each step builds directly on the last. Never skip ahead.
+  </div>
+  <p class="prose">By the end students should be able to explain and implement:</p>
+  <div class="grid-3">
+    <div class="card"><h4>Runtime</h4><p>What NodeJS is, how V8 runs JS outside the browser, and why that matters</p></div>
+    <div class="card"><h4>Modules</h4><p><code>require()</code> and <code>module.exports</code> — how code is shared between files</p></div>
+    <div class="card"><h4>Built-in modules</h4><p><code>process</code>, <code>fs</code>, <code>http</code> — Node's standard library</p></div>
+    <div class="card"><h4>Async programming</h4><p>Sync vs. async, callbacks, Promises, <code>.then()</code> / <code>.catch()</code></p></div>
+    <div class="card"><h4>HTTP & Express</h4><p>Creating servers, routing, status codes, and middleware</p></div>
+    <div class="card"><h4>Architecture</h4><p>How professional backends are organized into routes, controllers, and utilities</p></div>
+  </div>
+</div>
+
+<div class="section" id="what-is-node">
+  <div class="section-header"><span class="section-num">02</span><h2>What is NodeJS?</h2></div>
+  <p class="prose">NodeJS is a <strong>runtime environment</strong> — it's the engine that executes JavaScript code outside of a web browser. The key distinction for students is this shift:</p>
+  <div class="comparison">
+    <div class="comparison-col">
+      <h4>Before Node</h4>
+      <pre>JavaScript → Browser only</pre>
+    </div>
+    <div class="comparison-col">
+      <h4>With Node</h4>
+      <pre>JavaScript → Operating System</pre>
+    </div>
+  </div>
+  <p class="prose">NodeJS is built on three pillars:</p>
+  <div class="grid-3">
+    <div class="card"><h4>Chrome V8 engine</h4><p>The same JavaScript engine used in Google Chrome. It compiles JS directly to machine code, making Node fast.</p></div>
+    <div class="card"><h4>Event-driven architecture</h4><p>Node waits for events (user input, file ready, HTTP request) and reacts. Nothing blocks while waiting.</p></div>
+    <div class="card"><h4>Non-blocking I/O</h4><p>Disk reads, network requests, and database queries run in the background. Node keeps processing other work in the meantime.</p></div>
+  </div>
+  <div class="callout callout-concept">
+    <span class="callout-label">Analogy</span>
+    Think of a waiter in a restaurant. A blocking waiter would stand at your table watching your food cook. A non-blocking waiter takes your order, goes to help other tables, and comes back when your food is ready. NodeJS is the non-blocking waiter.
+  </div>
+</div>
+
+<div class="section" id="why-node">
+  <div class="section-header"><span class="section-num">03</span><h2>Why NodeJS?</h2></div>
+  <p class="prose">Before Node, if you wanted to build a server-side application in JavaScript, you couldn't. You had to switch to a different language entirely (PHP, Python, Java, Ruby). Node changed that by giving JS access to system-level capabilities:</p>
+  <div class="grid-2">
+    <div class="card"><ul>
+      <li>Create web servers and APIs</li>
+      <li>Read and write files on disk</li>
+      <li>Access environment variables and OS processes</li>
+    </ul></div>
+    <div class="card"><ul>
+      <li>Interact with databases</li>
+      <li>Handle real-time networking (WebSockets)</li>
+      <li>Build command-line tools</li>
+    </ul></div>
+  </div>
+  <p class="prose">This is why <strong>fullstack JavaScript became possible</strong>. One language across the entire stack: React on the frontend, Node on the backend, the same syntax and mental model throughout.</p>
+</div>
+
+<div class="section" id="task0">
+  <div class="section-header"><span class="section-num">04</span><h2>First execution — modules and exports (Task 0)</h2></div>
+  <p class="prose">The first task seems trivial — print a message — but its real purpose is teaching the Node module system. Every concept here will repeat throughout the entire project.</p>
+
+  <pre>// 0-console.js
+function displayMessage(message) {
+  console.log(message);
+}
+
+module.exports = displayMessage;</pre>
+
+  <div class="callout callout-concept">
+    <span class="callout-label">Key concept: module.exports</span>
+    In the browser, scripts share scope automatically. In Node, <strong>each file is its own isolated module</strong>. Nothing leaves a file unless you explicitly export it with <code>module.exports</code>. Without it, <code>require('./0-console')</code> returns an empty object — the function simply doesn't exist outside the file.
+  </div>
+
+  <pre>// 0-main.js
+const displayMessage = require('./0-console');
+displayMessage('Hello, Holberton!');
+</pre>
+
+  <p class="prose"><code>require()</code> reads the file at the given path, executes it, and returns whatever was assigned to <code>module.exports</code>. The <code>./</code> prefix tells Node to look in the current directory — without it, Node searches <code>node_modules</code> for a package instead.</p>
+
+  <div class="callout callout-tip">
+    <span class="callout-label">Flow visualization</span>
+    <div class="flow">
+      <div class="flow-step">0-main.js runs</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">require('./0-console') is called</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">Node executes 0-console.js</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">module.exports returns displayMessage function</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">displayMessage('Hello') → console.log prints to STDOUT</div>
+    </div>
+  </div>
+
+  <p class="prose"><strong>STDOUT</strong> (Standard Output) is simply where text output goes — usually the terminal. <code>console.log()</code> writes to STDOUT by default.</p>
+
+  <p class="prose">Three beginner mistakes to pre-empt in class:</p>
+  <ul class="error-list">
+    <li><strong>Forgetting module.exports entirely.</strong> The file runs but nothing is returned — the require call gets <code>{}</code>.</li>
+    <li><strong>Wrong require path:</strong> <code>require('0-console')</code> tells Node to look in node_modules. Always use <code>require('./0-console')</code> for local files.</li>
+    <li><strong>Calling the function on export:</strong> <code>module.exports = displayMessage()</code> exports the <em>return value</em> (undefined) instead of the function itself. No parentheses when exporting.</li>
+  </ul>
+</div>
+
+<div class="section" id="stdin">
+  <div class="section-header"><span class="section-num">05</span><h2>Understanding process.stdin (Task 1)</h2></div>
+  <p class="prose"><code>process</code> is a global object Node gives you for free — no require needed. It represents the currently running Node program and exposes three important I/O streams:</p>
+  <div class="grid-3">
+    <div class="card"><h4>process.stdin</h4><p>Standard Input — keyboard input from the user (or piped data)</p></div>
+    <div class="card"><h4>process.stdout</h4><p>Standard Output — where text you print goes (usually the terminal)</p></div>
+    <div class="card"><h4>process.stderr</h4><p>Standard Error — for error messages, shown separately from normal output</p></div>
+  </div>
+
+  <pre>process.stdout.write('Welcome to Holberton School, what is your name?\n');
+
+process.stdin.on('data', (data) => {
+  process.stdout.write(`Your name is: ${data}`);
+});
+
+process.stdin.on('end', () => {
+  process.stdout.write('This important software is now closing\n');
+});</pre>
+
+  <div class="callout callout-concept">
+    <span class="callout-label">Key concept: event-driven programming</span>
+    <code>process.stdin.on('data', callback)</code> does not wait — it <strong>registers a listener</strong> and returns immediately. Node continues running other code. When data actually arrives (the user types something), Node fires the callback. This is the event loop in action. The callback runs <em>later</em>, not now.
+  </div>
+
+  <div class="callout callout-tip">
+    <span class="callout-label">Flow visualization</span>
+    <div class="flow">
+      <div class="flow-step">Program starts → prompt is printed</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">Node registers listeners and enters the event loop</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">User types → 'data' event fires → callback executes</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">User presses Ctrl+D → 'end' event fires → program closes</div>
+    </div>
+  </div>
+  <p class="prose">This pattern — register a listener, do nothing until the event arrives, react when it does — is the <strong>foundation of servers, APIs, WebSockets, and databases</strong> in Node. Everything that comes later in this project builds on this exact idea.</p>
+</div>
+
+<div class="section" id="fs-sync">
+  <div class="section-header"><span class="section-num">06</span><h2>Reading files with fs — synchronous (Task 2)</h2></div>
+  <p class="prose">The <code>fs</code> (filesystem) module is a built-in Node module for working with files. Unlike <code>process</code>, it must be required explicitly:</p>
+
+  <pre>const fs = require('fs');</pre>
+
+  <div class="comparison">
+    <div class="comparison-col">
+      <h4>Synchronous (blocking)</h4>
+      <pre>const data = fs.readFileSync(path, 'utf8');
+// Nothing else runs until
+// the file is fully read.</pre>
+    </div>
+    <div class="comparison-col">
+      <h4>Asynchronous (non-blocking)</h4>
+      <pre>fs.readFile(path, 'utf8', (err, data) => {
+  // runs later, when ready
+});</pre>
+    </div>
+  </div>
+
+  <div class="callout callout-warning">
+    <span class="callout-label">Why UTF-8 matters</span>
+    Without specifying encoding, <code>fs.readFileSync(path)</code> returns a raw <code>Buffer</code> object like <code>&lt;Buffer 66 69 72 73 74...&gt;</code>. Passing <code>'utf8'</code> as the second argument tells Node to decode the bytes into a human-readable string.
+  </div>
+
+  <p class="prose">In Task 2, students parse a CSV file. Walk them through the strategy step by step so the array methods feel purposeful, not magical:</p>
+  <div class="flow">
+    <div class="flow-step">Read the file → get one long string</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><code>data.split('\n')</code> → array of lines</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><code>.filter(line => line.trim() !== '')</code> → remove trailing empty lines</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">Skip index 0 (header row: firstname, lastname, age, field)</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step"><code>line.split(',')</code> on each row → array of fields</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step">Group students into an object: <code>{ CS: [], SWE: [] }</code></div>
+  </div>
+  <div class="callout callout-tip">
+    <span class="callout-label">Teaching moment: why an object?</span>
+    Ask students: why use <code>students['CS']</code> instead of two separate arrays? An object lets you look up any field value dynamically — <code>students[field]</code> — without writing a separate branch for each possible value. This is a real pattern they'll use again.
+  </div>
+</div>
+
+<div class="section" id="fs-async">
+  <div class="section-header"><span class="section-num">07</span><h2>Async file reading and Promises (Task 3)</h2></div>
+  <p class="prose">Task 3 rewrites Task 2 using asynchronous code. This is arguably the most conceptually dense part of the project. Take extra time here.</p>
+
+  <div class="callout callout-concept">
+    <span class="callout-label">Why async matters for servers</span>
+    Imagine 1,000 users connecting simultaneously. A synchronous server reads each file one at a time, making every other user wait. An async server kicks off all 1,000 reads at once and responds to each as it finishes. This is what makes Node scalable.
+  </div>
+
+  <p class="prose">A Promise is an object that represents a value that isn't available yet. It's always in one of three states:</p>
+  <div class="grid-3">
+    <div class="card"><h4>Pending</h4><p>The operation is in progress. Neither success nor failure has happened yet.</p></div>
+    <div class="card"><h4>Resolved (fulfilled)</h4><p>The operation succeeded. <code>resolve(value)</code> was called. The <code>.then()</code> handler fires.</p></div>
+    <div class="card"><h4>Rejected</h4><p>The operation failed. <code>reject(error)</code> was called. The <code>.catch()</code> handler fires.</p></div>
+  </div>
+
+  <pre>function countStudents(path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, 'utf8', (err, data) => {
+      if (err) {
+        reject(new Error('Cannot load the database'));
+      } else {
+        // parse data, then:
+        resolve();
+      }
+    });
+  });
+}
+
+// Caller:
+countStudents('./database.csv')
+  .then(() => { /* success */ })
+  .catch((err) => { console.error(err.message); });</pre>
+
+  <div class="callout callout-warning">
+    <span class="callout-label">Most common mistake: forgetting return</span>
+    The function must <code>return new Promise(...)</code>. Without the <code>return</code>, the caller gets <code>undefined</code> instead of a Promise — <code>.then()</code> crashes with "Cannot read property of undefined."
+  </div>
+  <p class="prose"><code>.then()</code> means "when the async operation succeeds, run this code." <code>.catch()</code> means "if anything goes wrong anywhere in the chain, run this code instead." They can be chained — <code>.then().then().catch()</code> — each step receiving the result of the previous one.</p>
+</div>
+
+<div class="section" id="http">
+  <div class="section-header"><span class="section-num">08</span><h2>HTTP servers (Task 4)</h2></div>
+  <p class="prose">This is where backend development truly begins. A server is a program that listens for incoming requests and sends back responses. The HTTP module is built into Node — no install needed.</p>
+
+  <pre>const http = require('http');
+
+const app = http.createServer((req, res) => {
+  res.end('Hello Holberton School!');
+});
+
+app.listen(1245);
+module.exports = app;</pre>
+
+  <div class="grid-2">
+    <div class="card"><h4>req (request)</h4><p>Represents the incoming request from the browser. Contains <code>req.url</code> (the path), <code>req.method</code> (GET, POST…), and <code>req.headers</code>.</p></div>
+    <div class="card"><h4>res (response)</h4><p>The object you use to send data back. <code>res.end()</code> closes the connection. <code>res.write()</code> sends data without closing. Call <code>res.end()</code> exactly once per request.</p></div>
+  </div>
+
+  <div class="callout callout-concept">
+    <span class="callout-label">What is a port?</span>
+    A port is like a numbered door into your computer. Port 80 is the default for web traffic, 443 for HTTPS. In development we use non-privileged ports like 1245 or 3000. <code>localhost:1245</code> means: "connect to my own machine through door 1245."
+  </div>
+
+  <div class="callout callout-tip">
+    <span class="callout-label">Test with curl</span>
+    <pre>curl localhost:1245</pre>
+    This sends a real HTTP GET request from the terminal. Students can watch the server respond without opening a browser.
+  </div>
+</div>
+
+<div class="section" id="http-advanced">
+  <div class="section-header"><span class="section-num">09</span><h2>Advanced HTTP server (Task 5)</h2></div>
+  <p class="prose">Task 5 combines routing, async file reading, and server logic together. The core principle students must internalize is <strong>separation of concerns</strong> — different URLs trigger different behaviors:</p>
+
+  <pre>const app = http.createServer((req, res) => {
+  if (req.url === '/') {
+    res.end('Hello Holberton School!');
+  } else if (req.url === '/students') {
+    countStudents(DATABASE)
+      .then((data) => {
+        res.end(data);
+      })
+      .catch(() => {
+        res.end('Cannot load the database');
+      });
+  }
+});
+</pre>
+
+  <div class="callout callout-concept">
+    <span class="callout-label">The backend mental model</span>
+    Every backend request follows the same shape: <strong>Request → Logic → Response.</strong> The URL tells you which logic to run. The logic does work (reads a file, queries a DB). The response sends the result back. This pattern never changes, no matter how complex the framework.
+  </div>
+</div>
+
+<div class="section" id="express">
+  <div class="section-header"><span class="section-num">10</span><h2>ExpressJS (Task 6)</h2></div>
+  <p class="prose">Express is a minimal web framework for Node. It doesn't add new capabilities — it wraps Node's built-in <code>http</code> module and makes common tasks dramatically cleaner. Install it with:</p>
+  <pre>npm install express</pre>
+
+  <div class="comparison">
+    <div class="comparison-col">
+      <h4>Raw Node HTTP</h4>
+      <pre>if (req.url === '/' &&
+    req.method === 'GET') {
+  res.writeHead(200);
+  res.end('Hello');
+}</pre>
+    </div>
+    <div class="comparison-col">
+      <h4>Express</h4>
+      <pre>app.get('/', (req, res) => {
+  res.send('Hello');
+});</pre>
+    </div>
+  </div>
+
+  <p class="prose">Express handles HTTP method matching, content-type headers, and status codes automatically. A basic Express server:</p>
+  <pre>const express = require('express');
+const app = express();
+
+app.get('/', (req, res) => {
+  res.send('Hello Holberton School!');
+});
+
+app.listen(1245);
+module.exports = app;</pre>
+
+  <div class="callout callout-tip">
+    <span class="callout-label">package.json</span>
+    When you run <code>npm install express</code>, two things happen: the library is downloaded into <code>node_modules/</code>, and <code>package.json</code> is updated with a dependency entry. <code>package.json</code> is the project's blueprint — it lists every external library the project needs so anyone can recreate the environment with <code>npm install</code>. Never manually edit <code>node_modules/</code>.
+  </div>
+</div>
+
+<div class="section" id="express-routing">
+  <div class="section-header"><span class="section-num">11</span><h2>Advanced Express routing (Task 7)</h2></div>
+  <p class="prose">Task 7 introduces REST-style URLs and proper HTTP status codes. Two concepts to nail:</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h4>REST resource URLs</h4>
+      <pre>GET /            → homepage
+GET /students    → all students
+GET /students/CS → CS students</pre>
+      <p style="margin-top:8px">URLs represent <em>resources</em>, not actions. The HTTP method (GET, POST, DELETE) expresses the action.</p>
+    </div>
+    <div class="card">
+      <h4>HTTP status codes</h4>
+      <pre>200 → OK, success
+404 → Not found
+500 → Server error</pre>
+      <p style="margin-top:8px">Always send the appropriate status. <code>res.status(500).send('Cannot load the database')</code> — clients use status codes to decide how to handle the response.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="architecture">
+  <div class="section-header"><span class="section-num">12</span><h2>Full server architecture (Task 8)</h2></div>
+  <p class="prose">This is the most important task in the entire project. Students stop writing everything in one file and start organizing like professional backend developers.</p>
+
+  <div class="callout callout-concept">
+    <span class="callout-label">Why does architecture matter?</span>
+    Imagine a codebase with 10,000 lines in a single file — no one could maintain it. Professional projects split responsibilities across files so that each piece is small, testable, and replaceable. This is the <strong>separation of concerns</strong> principle.
+  </div>
+
+  <pre>full_server/
+├── controllers/
+│   ├── AppController.js      ← homepage logic
+│   └── StudentsController.js ← student route logic
+├── routes/
+│   └── index.js              ← URL → controller mapping
+├── utils.js                  ← shared helpers (readDatabase)
+└── server.js                 ← entry point, starts the server</pre>
+
+  <table class="arch-table">
+    <thead><tr><th>File</th><th>Analogy</th><th>Responsibility</th></tr></thead>
+    <tbody>
+      <tr><td>server.js</td><td>Receptionist</td><td>Starts the app, wires everything together. Entry point only — no business logic here.</td></tr>
+      <tr><td>routes/index.js</td><td>Building directory</td><td>Maps every URL to the controller that handles it. <code>router.get('/students', StudentsController.getAllStudents)</code></td></tr>
+      <tr><td>controllers/</td><td>Office workers</td><td>Contains the actual logic — what to do when a route is matched. One controller per resource.</td></tr>
+      <tr><td>utils.js</td><td>Tools room</td><td>Reusable helper functions like <code>readDatabase()</code>. Logic that multiple controllers share lives here.</td></tr>
+      <tr><td>database.csv</td><td>Filing cabinet</td><td>The data. In a real app this is a database. Here it's a CSV file.</td></tr>
+    </tbody>
+  </table>
+
+  <p class="prose">Dynamic route parameters let one route handle many values:</p>
+  <pre>// Route definition
+router.get('/students/:major', StudentsController.getAllStudentsByMajor);
+
+// Inside the controller
+const { major } = req.params;
+
+if (major !== 'CS' && major !== 'SWE') {
+  return res.status(500).send('Student not found');
+}
+</pre>
+
+  <div class="callout callout-tip">
+    <span class="callout-label">Express Router</span>
+    <code>express.Router()</code> creates a mini-app that handles a group of routes. In large projects you might have one router for <code>/users</code>, one for <code>/products</code>, one for <code>/orders</code>, each in its own file. They're combined in <code>server.js</code> with <code>app.use(router)</code>.
+  </div>
+</div>
+
+<div class="section" id="babel">
+  <div class="section-header"><span class="section-num">13</span><h2>ES6 + Babel</h2></div>
+  <p class="prose">Modern JavaScript (ES6+) introduced cleaner syntax for imports, exports, arrow functions, and more. Babel is a <strong>transpiler</strong> — it converts modern JS into older, universally compatible JS before Node runs it.</p>
+
+  <div class="comparison">
+    <div class="comparison-col">
+      <h4>ES6 (modern)</h4>
+      <pre>import express from 'express';
+
+export default app;</pre>
+    </div>
+    <div class="comparison-col">
+      <h4>CommonJS (Node default)</h4>
+      <pre>const express = require('express');
+
+module.exports = app;</pre>
+    </div>
+  </div>
+
+  <p class="prose">Both do the same thing. Babel allows students to write ES6 syntax and have it automatically compiled to CommonJS before execution. This is relevant because most modern Node projects and all React projects use ES6 module syntax.</p>
+</div>
+
+<div class="section" id="nodemon">
+  <div class="section-header"><span class="section-num">14</span><h2>Nodemon</h2></div>
+  <p class="prose">Every time you change your server code, you have to stop and restart the server manually. Nodemon watches your files for changes and restarts automatically — a significant quality-of-life improvement during development.</p>
+
+  <div class="comparison">
+    <div class="comparison-col">
+      <h4>Without Nodemon</h4>
+      <div class="flow">
+        <div class="flow-step">Edit code</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Ctrl+C to stop server</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">node server.js again</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Test change</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Repeat for every edit</div>
+      </div>
+    </div>
+    <div class="comparison-col">
+      <h4>With Nodemon</h4>
+      <div class="flow">
+        <div class="flow-step">npm run dev (once)</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Edit code</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Server restarts automatically</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">Test change immediately</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="prose">The <code>scripts</code> section in <code>package.json</code> lets you define shortcuts so <code>npm run dev</code> runs whatever long nodemon command is needed, without typing it each time.</p>
+</div>
+
+<div class="section" id="concepts">
+  <div class="section-header"><span class="section-num">15</span><h2>Core concepts students must understand</h2></div>
+  <div class="grid-2">
+    <div class="card"><h4>Non-blocking I/O</h4><p>Node does not pause execution waiting for slow operations (disk, network). It registers a callback and moves on. This is why Node can handle thousands of concurrent connections on a single thread.</p></div>
+    <div class="card"><h4>Event-driven programming</h4><p>Code doesn't run top-to-bottom in sequence. Instead, functions run in response to events: data arrived, file read, HTTP request received. The event loop orchestrates all of this.</p></div>
+    <div class="card"><h4>Request/response cycle</h4><p>Every web interaction is a request (browser asks) and a response (server answers). Understanding this cycle is the foundation of all backend development.</p></div>
+    <div class="card"><h4>Separation of concerns</h4><p>Each file should have one job. Routes map URLs to handlers. Controllers contain logic. Utils contain helpers. When concerns are separated, bugs are easier to find and code is easier to change.</p></div>
+  </div>
+</div>
+
+<div class="section" id="errors">
+  <div class="section-header"><span class="section-num">16</span><h2>Common student errors</h2></div>
+  <ul class="error-list">
+    <li><strong>Forgetting <code>return</code> before <code>new Promise()</code>.</strong> The promise is created but the caller receives undefined. Add return: <code>return new Promise(...)</code>.</li>
+    <li><strong>Forgetting module.exports.</strong> Code runs fine in isolation but nothing is importable. Every file that exports something must end with <code>module.exports = ...</code>.</li>
+    <li><strong>Using synchronous file reading in an async context.</strong> Using <code>readFileSync</code> inside a Promise or async route handler blocks the entire server. Use <code>readFile</code> (async) instead.</li>
+    <li><strong>Sending multiple responses.</strong> Calling <code>res.send()</code> or <code>res.end()</code> twice on the same response throws an error. Each request gets exactly one response.</li>
+    <li><strong>Missing or wrong status codes.</strong> Always use <code>res.status(500).send(...)</code> for errors — not just <code>res.send(...)</code> — so clients can detect failures.</li>
+    <li><strong>Not handling errors in promises.</strong> An unhandled rejected Promise will crash the server in newer versions of Node. Always chain <code>.catch()</code>.</li>
+    <li><strong>Wrong path to the database.</strong> The path passed to <code>readFile</code> is relative to where <code>node</code> is run from, not where the file is. Use the argument passed in, not a hardcoded relative path.</li>
+  </ul>
+</div>
+
+<div class="section" id="questions">
+  <div class="section-header"><span class="section-num">17</span><h2>Questions to ask students</h2></div>
+  <div class="grid-3">
+    <div class="card">
+      <h4><span class="badge badge-teal">Beginner</span></h4>
+      <ul class="q-list">
+        <li>What is NodeJS?</li>
+        <li>What is STDOUT and STDIN?</li>
+        <li>What does require() do?</li>
+        <li>What is module.exports?</li>
+        <li>What happens if you forget module.exports?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-amber">Intermediate</span></h4>
+      <ul class="q-list">
+        <li>What is the difference between sync and async?</li>
+        <li>What is a blocking operation?</li>
+        <li>What is a Promise? What states can it be in?</li>
+        <li>What is a route?</li>
+        <li>What does Express simplify vs raw Node?</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4><span class="badge badge-purple">Advanced</span></h4>
+      <ul class="q-list">
+        <li>Why put logic in controllers vs routes?</li>
+        <li>Why is async critical for scalability?</li>
+        <li>What does the event loop do?</li>
+        <li>What is the difference between CommonJS and ES6 modules?</li>
+        <li>What does Babel do and why would you need it?</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="live">
+  <div class="section-header"><span class="section-num">18</span><h2>Live coding suggestions</h2></div>
+  <p class="prose">Go in this order — each demo uses concepts from the previous one:</p>
+  <table class="arch-table">
+    <thead><tr><th>Demo</th><th>What to show</th><th>Key teaching point</th></tr></thead>
+    <tbody>
+      <tr><td>1 — Task 0</td><td><code>node 0-main.js</code></td><td>require/exports, why both files are needed, module isolation</td></tr>
+      <tr><td>2 — Task 1</td><td>stdin interaction live</td><td>Event listeners, callbacks executing asynchronously, process.exit</td></tr>
+      <tr><td>3 — Task 2</td><td>Parse CSV manually step by step</td><td>split, filter, map in sequence — build the object live</td></tr>
+      <tr><td>4 — Task 4</td><td>Tiny HTTP server + curl test</td><td>req/res, what a port is, the request/response cycle</td></tr>
+      <tr><td>5 — Task 6</td><td>Express server side-by-side with Node</td><td>Show the raw version first, then rewrite with Express — let them feel the difference</td></tr>
+      <tr><td>6 — Task 8</td><td>Full architecture walkthrough</td><td>Start from the entry point, trace a request through routes → controller → utils → response</td></tr>
+    </tbody>
+  </table>
+  <div class="callout callout-tip">
+    <span class="callout-label">Best teaching moment</span>
+    For Demo 6 (Task 8), start by showing what the code looks like with everything in one file, then refactor it live into the proper architecture. Students understand <em>why</em> the structure exists when they see the problem it solves.
+  </div>
+</div>
+
+<hr class="divider">
+<div style="padding: 1.5rem 0 2rem;">
+  <p class="prose" style="color: var(--color-text-secondary); font-size: 14px;">
+    This project is the bridge from JavaScript student to backend developer. Everything that follows — MongoDB, authentication, REST APIs, JWT, React backends, microservices — builds on these foundations. Teach the <em>why</em> behind every pattern, not just the syntax.
+  </p>
+</div>

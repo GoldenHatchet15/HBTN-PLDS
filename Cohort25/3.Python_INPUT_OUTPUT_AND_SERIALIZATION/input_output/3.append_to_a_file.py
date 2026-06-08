@@ -14,5 +14,5 @@ with open("3.example.txt", "r") as file:
     content = file.read()
     print(content)
 
- with open(filename, "a") as file:
-        file.write(text_to_add + content) 
+with open(filename, "a") as file:
+    file.write(text_to_add + content) 

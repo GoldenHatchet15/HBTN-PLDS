@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "es5",           // Compile to ES5 JavaScript (older browser support)
+    "module": "es6",           // Use ES6 modules
+    "strict": true,            // Enable strict type checking
+    "noImplicitAny": true,     // Error on variables without explicit types
+    "lib": ["ES2020", "DOM"]   // Include ES2020 and DOM type definitions
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "typescript_dependencies",
+  "scripts": {
+    "start-dev": "webpack-dev-server",  // Starts development server
+    "build": "webpack",                  // Compiles TypeScript to JavaScript
+    "test": "jest"                      // Runs tests
+  }
+}
