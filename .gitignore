@@ -1,0 +1,31 @@
+# Python virtual environments
+env/
+venv/
+.venv/
+ENV/
+*_env/
+
+# Python compiled files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment variable files
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Node (none found yet, but covered for future use)
+node_modules/
+npm-debug.log*
